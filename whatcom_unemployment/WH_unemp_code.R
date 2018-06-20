@@ -1,13 +1,17 @@
 #loading in the data and converting to time series
+#the directory needs to be set before running the program so that the data can be loaded.
 
-setwd("E:/whatcom_unemployment")
-install.packages("dplyr")
+install.packages("car")
+library(car)
+#installing SSA packages
+install.packages("Rssa")
+library(Rssa)
+install.packages("nortest")
+library(nortest)
 WH.unemp <- read.csv("WAWHAT5URN.csv")
 WH.unemp <- ts(WH.unemp$WAWHAT5URN, start = 1990, frequency = 12)
 
 #using boxcox test to see if transformations are necessary
-install.packages("car")
-library(car)
 lambda <- boxCox(WH.unemp ~ 1, family = "bcPower")
 #because the 95% CI for the loglikelihood includes zero the 
 #transformation will be logistic transformation
@@ -20,10 +24,6 @@ log.WH <- ts(log.WH, start = 1990, frequency = 12)
 #checking for normality 
 shapiro.test(log_WH) #at a significance level of alpha=.005 the data is not normal. 
 
-
-#installing SSA packages
-install.packages("Rssa")
-library(Rssa)
 n <- length(WH.unemp)
 ssa.log.WH <- ssa(log.WH, kind = "1d-ssa")
 plot(ssa.log.WH) #eigenvalues
@@ -78,8 +78,6 @@ plot(cbind(trans.WH, trans.ssa.WH), plot.type = "single", col = c("black", "red"
 
 #residuals for reconstruction
 res <- residuals(recon.log.WH)
-install.packages("nortest")
-library(nortest)
 
 pvalues <- double(10)
 for ( lag in 1 : 10 )
